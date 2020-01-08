@@ -1,5 +1,6 @@
 /libs
 /cmake-build-debug
 /output
+/src/Animation.h
 
 .idea

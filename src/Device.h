@@ -34,7 +34,7 @@ public:
 
     int frames, delay;
 
-    Device(int frames = -1, int delay = 0): frames(frames), delay(delay) {};
+    Device(int frames = 300, int delay = 200): frames(frames), delay(delay) {};
 
     ~Device() {
         if(th.joinable()) {
@@ -64,7 +64,10 @@ public:
         return NUI_SKELETON_POSITION_COUNT;
     }
 
-    void getSkeletalData() {
+    bool getSkeletalData() {
+        if (index != -1 && index >= frames)
+            return false;
+
         while(true) {
             NUI_SKELETON_FRAME skeletonFrame = {0};
             int frame = sensor->NuiSkeletonGetNextFrame(delay, &skeletonFrame);
@@ -75,6 +78,8 @@ public:
                 for(const NUI_SKELETON_DATA & skeleton : skeletonFrame.SkeletonData) {
                     // Check the state of the skeleton
                     if (skeleton.eTrackingState == NUI_SKELETON_TRACKED) {
+                        unique_lock<mutex> lck(mtx);
+
                         // For the first tracked skeleton
                         // Copy the joint positions into our array
                         for (int i = 0; i < NUI_SKELETON_POSITION_COUNT; i++) {
@@ -92,7 +97,7 @@ public:
                         }
 
                         // Only take the data for one skeleton
-                        return;
+                        return true;
                     }
                 }
             }
@@ -100,9 +105,6 @@ public:
     }
 
     void copy(float * buffer) {
-        // Get skeleton data
-        getSkeletalData();
-
         for (unsigned int g = 0; g < getSize(); g++) {
             const Vector4 & joint = skeletonPositions[g];
 
@@ -115,6 +117,7 @@ public:
         if (source.w > 0) {
             destination[offset] = source.x;
             destination[offset + 1] = source.y;
+
             // The positive z axis is the visible area
             destination[offset + 2] = -source.z;
         } else {
@@ -131,7 +134,7 @@ public:
         assert (frames > 0);
 
         this->cache = true;
-        this->th = move(thread(&Device::writeToFile, path));
+        this->th = move(thread(&Device::writeToFile, this, path));
     }
 
     void clear() {
@@ -140,26 +143,28 @@ public:
 
 private:
     void writeToFile(const string & path) {
-        fstream file("output/" + path);
+        string relativePath = "../output/" + path;
+
+        fstream file(relativePath, fstream::out);
         if(file.is_open()) {
             printf("Writing to file: %d frames with %dms delay\n", frames, delay);
 
-            file << frames << " " << delay << "\n";
+            file << frames << " " << delay << " " << NUI_SKELETON_POSITION_COUNT << "\n";
 
             while(true) {
                 unique_lock<mutex> lck(mtx);
 
-                if(index < frames)
+                if(index >= frames)
                     break;
 
-                while(!consumed) {
+                while(consumed) {
                     cv.wait(lck);
                 }
 
                 for (unsigned int h = 0; h < NUI_SKELETON_POSITION_COUNT; h++) {
                     const Vector4 & joint = skeletonPositions[h];
 
-                    file << h << " " << joint.x << " " << joint.y << " " << joint.z << " " << joint.w << "\n";
+                    file << joint.x << " " << joint.y << " " << joint.z << " " << joint.w << "\n";
                 }
 
                 consumed = true;
@@ -169,6 +174,9 @@ private:
             file.close();
 
             printf("Finished writing to file\n");
+        } else {
+            printf("Couldn't open %s\n", relativePath.c_str());
+            exit(-1);
         }
     }
 };

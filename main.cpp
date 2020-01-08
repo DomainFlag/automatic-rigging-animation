@@ -2,42 +2,51 @@
 
 #include "src/Device.h"
 #include "src/Renderer.h"
+#include "src/Animation.h"
 
 #include <string>
 #include <cassert>
 
 #define SKELETON_RENDER 1
-#define SKELETON_CACHE 1
+#define SKELETON_CACHE 0
+#define SKELETON_ANIMATION 0
 
 extern const string FILE_CACHE = "skeleton.out";
 
 using namespace std;
 
 int main() {
-    assert (!SKELETON_RENDER && !SKELETON_CACHE);
+    assert (SKELETON_RENDER || SKELETON_CACHE);
 
-    Device device;
-
-    if (!device.initKinect()) {
-        printf("Coudn't connect to the Kinect device...\n");
-        exit(-1);
+    if (SKELETON_ANIMATION) {
+        Animation animation;
     } else {
-        if (SKELETON_CACHE) {
-            device.initCache(FILE_CACHE);
-        }
-
-        if (SKELETON_RENDER) {
-            Renderer renderer(device);
-            renderer.clear();
+        Device device;
+        if (!device.initKinect()) {
+            printf("Couldn't connect to the Kinect device...\n");
+            exit(-1);
         } else {
-            // Get skeleton data while available joints are generated
-            for(int g = 0; g < device.frames; g++) {
-                device.getSkeletalData();
+            printf("Successfully connected to the Kinect device...\n");
+
+            if (SKELETON_CACHE) {
+                device.initCache(FILE_CACHE);
+            }
+
+            if (SKELETON_RENDER) {
+                Renderer renderer(device);
+                renderer.startRenderer();
+                renderer.clear();
+            } else {
+                // Get skeleton data while available joints are generated
+                bool flag = true;
+                while(flag) {
+                    flag = device.getSkeletalData();
+                }
             }
         }
-    }
 
-    device.clear();
+        device.clear();
+    }
 
     return 0;
 }

@@ -1,6 +1,8 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
+#include "Windows.h"
+
 #include <glad.h>
 #include <GLFW/glfw3.h>
 
@@ -24,9 +26,6 @@ class Program {
 private:
     const char * WINDOW_NAME = "Skeleton";
 
-    const int WIN_SIZE_W = 1080;
-    const int WIN_SIZE_H = 720;
-
     GLFWwindow * window;
     GLuint program;
 
@@ -39,6 +38,9 @@ private:
 
 public:
 
+    const float WIN_SIZE_W = 1080;
+    const float WIN_SIZE_H = 720;
+
     Program() {
         glfwSetKeyCallback(window, Program::keyCallback);
     }
@@ -48,7 +50,7 @@ public:
      */
     static void keyCallback(GLFWwindow * window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-            glfwTerminate();
+            glfwSetWindowShouldClose(window, true);
         }
     }
 
@@ -56,6 +58,11 @@ public:
      * Read a dir for existing shaders
      */
     static vector<filesystem::path> getDirFiles(const string & folderName) {
+        if(!filesystem::exists(folderName)) {
+            printf("%s folder doesn't exist:\n", folderName.c_str());
+            exit(-1);
+        }
+
         printf("Reading the %s folder:\n", folderName.c_str());
 
         vector<filesystem::path> paths;
@@ -219,7 +226,9 @@ public:
 
         // Create rendering program
         program = createProgram(shaderFolder);
+    }
 
+    void startRenderer() {
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
             /* Clear screen */
@@ -239,6 +248,18 @@ public:
         }
     }
 
+    bool initUniform(const float * data, const string & name) {
+        // Fill and bind the uniform
+        int uniform = glGetUniformLocation(program, name.c_str());
+        if(uniform == -1) {
+            return GL_FALSE;
+        }
+
+        glUniformMatrix4fv(uniform, 1, false, data);
+
+        return GL_TRUE;
+    }
+
     bool initBuffer(const void * data, const string & name, const GLintptr size, const GLint components) {
         // Fill and bind the buffer
         int attribute = glGetAttribLocation(program, name.c_str());
@@ -251,7 +272,7 @@ public:
         GLuint buffer;
         glGenBuffers(1, &buffer);
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, size * components * sizeof(float), data, GL_DYNAMIC_DRAW);
         glVertexAttribPointer(attribute, components, GL_FLOAT, GL_FALSE, 0, nullptr);
 
         buffers.insert({name, Buffer(attribute, buffer, size, components)});
@@ -267,16 +288,16 @@ public:
 
         const Buffer & buffer = iterator->second;
 
-        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.size, data);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.size * buffer.components * sizeof(float), data);
         glVertexAttribPointer(buffer.attribute, buffer.components, GL_FLOAT, GL_FALSE, 0, nullptr);
 
         return GL_TRUE;
     }
 
-    virtual void update();
-    virtual void render();
+    virtual void update() = 0;
+    virtual void render() = 0;
     virtual void clear() {
-        glfwTerminate();
+        glfwSetWindowShouldClose(window, true);
     }
 };
 
