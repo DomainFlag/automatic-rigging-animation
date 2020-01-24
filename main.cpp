@@ -8,7 +8,7 @@
 #include <cassert>
 
 #define SKELETON_RENDER 1
-#define SKELETON_CACHE 0
+#define SKELETON_CACHE 1
 #define SKELETON_ANIMATION 0
 
 extern const string FILE_CACHE = "skeleton.out";

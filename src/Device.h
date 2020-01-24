@@ -12,6 +12,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 
@@ -23,6 +26,7 @@ public:
 
     // Initialize Skeleton Data
     Vector4 skeletonPositions[NUI_SKELETON_POSITION_COUNT];
+    NUI_SKELETON_BONE_ORIENTATION orientations[NUI_SKELETON_POSITION_COUNT];
 
     int index = 0;
     bool consumed = true;
@@ -32,9 +36,42 @@ public:
     mutex mtx;
     condition_variable cv;
 
+    vector<string> joints = {
+            "HIP_CENTER",
+            "SPINE",
+            "SHOULDER_CENTER",
+            "HEAD",
+            "SHOULDER_LEFT",
+            "ELBOW_LEFT",
+            "WRIST_LEFT",
+            "HAND_LEFT",
+            "SHOULDER_RIGHT",
+            "ELBOW_RIGHT",
+            "WRIST_RIGHT",
+            "HAND_RIGHT",
+            "HIP_LEFT",
+            "KNEE_LEFT",
+            "ANKLE_LEFT",
+            "FOOT_LEFT",
+            "HIP_RIGHT",
+            "KNEE_RIGHT",
+            "ANKLE_RIGHT",
+            "FOOT_RIGHT"
+    };
+
+    vector<int> mapping = {
+            2, 1, 0, 3, 12, 13, 14, 15, 16, 17, 18, 19, 4, 5, 6, 8, 9, 10
+    };
+
+    unordered_map<int, int> mappingOrientations;
+
     int frames, delay;
 
-    Device(int frames = 300, int delay = 200): frames(frames), delay(delay) {};
+    Device(int frames = 400, int delay = 200): frames(frames), delay(delay) {
+        for (int g = 0; g < mapping.size(); g++) {
+            mappingOrientations.insert({mapping[g], g});
+        }
+    };
 
     ~Device() {
         if(th.joinable()) {
@@ -80,10 +117,14 @@ public:
                     if (skeleton.eTrackingState == NUI_SKELETON_TRACKED) {
                         unique_lock<mutex> lck(mtx);
 
+                        // Extract bone orientations
+                        NuiSkeletonCalculateBoneOrientations(&skeleton, orientations);
+
                         // For the first tracked skeleton
                         // Copy the joint positions into our array
                         for (int i = 0; i < NUI_SKELETON_POSITION_COUNT; i++) {
                             skeletonPositions[i] = skeleton.SkeletonPositions[i];
+
                             if (skeleton.eSkeletonPositionTrackingState[i] == NUI_SKELETON_POSITION_NOT_TRACKED) {
                                 skeletonPositions[i].w = 0;
                             }
@@ -101,6 +142,23 @@ public:
                     }
                 }
             }
+        }
+    }
+
+    void printJoints(int i, string joint_name1, string joint_name2, string joint_name3) {
+        cout << "----------" << endl;
+        string joint1 = joints[orientations[i].startJoint];
+        string joint2 = joints[orientations[i].endJoint];
+        if ((joint1 == joint_name1 && joint2 == joint_name2) ||
+            (joint2 == joint_name1 && joint1 == joint_name2)) {
+            printVec(orientations[i].absoluteRotation.rotationQuaternion);
+        }
+
+        string joint = joints[i];
+        if (joint == joint_name1 || joint == joint_name2 || joint == joint_name3) {
+            cout << joint << endl;
+
+            printVec(skeletonPositions[i] );
         }
     }
 
@@ -142,14 +200,13 @@ public:
     }
 
 private:
+
     void writeToFile(const string & path) {
         string relativePath = "../output/" + path;
 
         fstream file(relativePath, fstream::out);
         if(file.is_open()) {
             printf("Writing to file: %d frames with %dms delay\n", frames, delay);
-
-            file << frames << " " << delay << " " << NUI_SKELETON_POSITION_COUNT << "\n";
 
             while(true) {
                 unique_lock<mutex> lck(mtx);
@@ -161,10 +218,17 @@ private:
                     cv.wait(lck);
                 }
 
-                for (unsigned int h = 0; h < NUI_SKELETON_POSITION_COUNT; h++) {
-                    const Vector4 & joint = skeletonPositions[h];
+                for (const Vector4 & joint : skeletonPositions) {
+                    file << joint.x << " " << joint.y  << " " << joint.z  << " ";
+                }
 
-                    file << joint.x << " " << joint.y << " " << joint.z << " " << joint.w << "\n";
+                file << "\n";
+
+                for (const _NUI_SKELETON_BONE_ORIENTATION & orientation : orientations) {
+                    file << orientation.startJoint << " " << orientation.endJoint << " ";
+
+                    const Vector4 & quart = orientation.absoluteRotation.rotationQuaternion;
+                    file << quart.x << " " << quart.y << " " << quart.z << " " << quart.w << "\n";
                 }
 
                 consumed = true;

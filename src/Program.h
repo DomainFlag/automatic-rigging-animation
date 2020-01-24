@@ -84,7 +84,7 @@ public:
      * @param shaderType
      * @return
      */
-    static int createShader(GLchar ** source, int count, GLuint shaderType) {
+    static int createShader(const GLchar ** source, int count, GLuint shaderType) {
         int shader = glCreateShader(shaderType);
         glShaderSource(shader, 1, source, nullptr);
         glCompileShader(shader);
@@ -154,20 +154,15 @@ public:
         for(const filesystem::path & path: paths) {
             string path_str = path.string();
 
-            errno_t error;
-            if((error = fopen_s(&fp, path_str.c_str(), "rb")) != 0) {
-                printf("\"File couldn't be opened: %d\n", error);
-            } else {
-                fseek(fp, 0, SEEK_END);
-                long size = ftell(fp) + 1;
+            string content;
+            ifstream fileStream(path_str.c_str(), std::ios::in);
 
-                // Start at 0 position
-                rewind(fp);
-
-                // Read data
-                auto data = (GLchar *) malloc(size);
-                fread(data, 1, size, fp);
-                fclose(fp);
+            if(fileStream.is_open()) {
+                string line = "";
+                while(!fileStream.eof()) {
+                    getline(fileStream, line);
+                    content.append(line + "\n");
+                }
 
                 size_t pos = path_str.find('_');
                 if(pos != string::npos) {
@@ -178,7 +173,9 @@ public:
                         fprintf(stderr, "Unknown shader file: %s\n", path_str.c_str());
                         exit(-1);
                     } else {
-                        int shader = createShader(&data, size, type->second);
+                        const char * data = content.c_str();
+
+                        int shader = createShader(&data, content.size(), type->second);
                         if(shader != -1) {
                             glAttachShader(program, shader);
                         }
@@ -187,9 +184,11 @@ public:
                     fprintf(stderr, "Unknown shader file: %s\n", path_str.c_str());
                     exit(-1);
                 }
-
-                free(data);
+            } else {
+                printf("\"File couldn't be opened\n");
             }
+
+            fileStream.close();
         }
     }
 
