@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F66AD322-ABB4-4992-8FEF-BB9CB6BDD9D7}</ProjectGuid>
+    <RootNamespace>PinocchioStatic</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>16.0.29511.113</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(FBX_DIR)\include</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(FBX_DIR)\lib\vs2015\x86\debug</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(FBX_DIR)\include</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(FBX_DIR)\lib\vs2015\x86\release</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;PINOCCHIO_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(FBX_DIR)/lib/vs2015/x86/debug</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;PINOCCHIO_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Pinocchio\attachment.cpp" />
+    <ClCompile Include="..\Pinocchio\discretization.cpp" />
+    <ClCompile Include="..\Pinocchio\embedding.cpp" />
+    <ClCompile Include="..\Pinocchio\graphutils.cpp" />
+    <ClCompile Include="..\Pinocchio\indexer.cpp" />
+    <ClCompile Include="..\Pinocchio\intersector.cpp" />
+    <ClCompile Include="..\Pinocchio\lsqSolver.cpp" />
+    <ClCompile Include="..\Pinocchio\matrix.cpp" />
+    <ClCompile Include="..\Pinocchio\mesh.cpp" />
+    <ClCompile Include="..\Pinocchio\pinocchioApi.cpp" />
+    <ClCompile Include="..\Pinocchio\refinement.cpp" />
+    <ClCompile Include="..\Pinocchio\skeleton.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Pinocchio\attachment.h" />
+    <ClInclude Include="..\Pinocchio\debugging.h" />
+    <ClInclude Include="..\Pinocchio\deriv.h" />
+    <ClInclude Include="..\Pinocchio\dtree.h" />
+    <ClInclude Include="..\Pinocchio\graphutils.h" />
+    <ClInclude Include="..\Pinocchio\hashutils.h" />
+    <ClInclude Include="..\Pinocchio\indexer.h" />
+    <ClInclude Include="..\Pinocchio\intersector.h" />
+    <ClInclude Include="..\Pinocchio\lsqSolver.h" />
+    <ClInclude Include="..\Pinocchio\mathutils.h" />
+    <ClInclude Include="..\Pinocchio\matrix.h" />
+    <ClInclude Include="..\Pinocchio\mesh.h" />
+    <ClInclude Include="..\Pinocchio\multilinear.h" />
+    <ClInclude Include="..\Pinocchio\Pinocchio.h" />
+    <ClInclude Include="..\Pinocchio\pinocchioApi.h" />
+    <ClInclude Include="..\Pinocchio\pointprojector.h" />
+    <ClInclude Include="..\Pinocchio\quaddisttree.h" />
+    <ClInclude Include="..\Pinocchio\rect.h" />
+    <ClInclude Include="..\Pinocchio\skeleton.h" />
+    <ClInclude Include="..\Pinocchio\transform.h" />
+    <ClInclude Include="..\Pinocchio\utils.h" />
+    <ClInclude Include="..\Pinocchio\vector.h" />
+    <ClInclude Include="..\Pinocchio\vecutils.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
