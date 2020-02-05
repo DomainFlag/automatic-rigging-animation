@@ -25,6 +25,7 @@ release/
 *.idb
 *.dep
 *.suo
+!**/data/*
 **/misc
 **/.vs/
 **/out/

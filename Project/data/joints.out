@@ -1,0 +1,24 @@
+hips        0. 0. 0.        -1
+spine       0. 0.1 0.      hips
+shoulders   0. 0.625 0.      spine
+head        0. 0.7 0.       shoulders
+
+lshoulder  -0.3 0.5 0.      shoulders
+lelbow     -0.4 0.25 0.075  lshoulder
+lwrist     -0.55 0.075 0.15    lelbow
+lhand      -0.6 -0.0025 0.15 lwrist
+
+rshoulder   0.3 0.5 0.      shoulders
+relbow      0.4 0.25 0.075  rshoulder
+rwrist      0.55 0.075 0.15    relbow
+rhand       0.6 -0.0025 0.15 rwrist
+
+lhip       -0.1 0. 0.       hips
+lknee      -0.15 -0.35 0.   lhip
+lankle     -0.15 -0.8 0.    lknee
+lfoot      -0.14 -0.8 0.15   lankle
+
+rhip        0.1 0. 0.       hips
+rknee       0.15 -0.35 0.   rhip
+rankle      0.15 -0.8 0.    rknee
+rfoot       0.14 -0.8 0.15   rankle
